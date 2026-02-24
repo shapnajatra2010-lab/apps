@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>স্বপ্নযাত্রা-২০১০</title>
+    <title>সংগঠন ম্যানেজমেন্ট সিস্টেম প্রো</title>
     <style>
         :root { --primary: #2c3e50; --secondary: #27ae60; --accent: #e67e22; --bg: #f4f7f6; --danger: #e74c3c; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 0; }
         
-        /* মেইন ট্যাব স্টাইল */
         .main-nav { display: flex; background: var(--primary); justify-content: center; position: sticky; top: 0; z-index: 1000; }
         .main-tab { padding: 15px 30px; border: none; background: none; color: white; cursor: pointer; font-size: 18px; font-weight: bold; transition: 0.3s; }
         .main-tab.active { background: white; color: var(--primary); border-radius: 10px 10px 0 0; margin-top: 5px; }
@@ -16,31 +15,35 @@
         .container { max-width: 1000px; margin: 30px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
         .hidden { display: none; }
 
-        /* ফর্ম ও টেবিল স্টাইল */
         .input-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; padding: 20px; background: #f9f9f9; border-radius: 10px; border: 1px solid #ddd; }
         input, select { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
-        .btn { padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-success { background: var(--secondary); color: white; width: 100%; }
         
-        /* প্রোফাইল ডিসপ্লে */
         .member-card { border: 2px solid #eee; border-radius: 15px; padding: 25px; margin-top: 20px; background: #fff; }
         .profile-flex { display: flex; gap: 20px; align-items: center; border-bottom: 2px solid #f0f0f0; padding-bottom: 20px; margin-bottom: 20px; }
-        .profile-img { width: 120px; height: 120px; border-radius: 10px; object-fit: cover; border: 3px solid var(--primary); }
+        .profile-img { width: 120px; height: 120px; border-radius: 10px; object-fit: cover; border: 3px solid var(--primary); background: #eee; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
         th { background: #f2f2f2; color: var(--primary); }
 
-        /* এডমিন সাব-ট্যাব */
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); display: none; justify-content: center; align-items: center; z-index: 2000; }
+
         .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #eee; }
         .sub-tab { padding: 8px 15px; cursor: pointer; background: #eee; border: none; border-radius: 5px 5px 0 0; }
         .sub-tab.active { background: var(--accent); color: white; }
+
+        .edit-btn { color: #2980b9; cursor: pointer; margin-right: 10px; font-weight: bold; }
+        .del-btn { color: var(--danger); cursor: pointer; font-weight: bold; }
 
         @media print { .no-print { display: none; } .container { box-shadow: none; margin: 0; padding: 0; } }
     </style>
 </head>
 <body>
+
+<div id="loader"><h3>শিটের সাথে ডাটা সিঙ্ক হচ্ছে...</h3></div>
 
 <nav class="main-nav no-print">
     <button class="main-tab active" onclick="switchMainTab('member-mode')">সদস্য মোড</button>
@@ -83,7 +86,7 @@
     <div id="admin-mode" class="main-section hidden">
         <div id="admin-login-box" style="text-align: center; padding: 50px 0;">
             <h3>এডমিন এক্সেস</h3>
-            <input type="password" id="adminPass" placeholder="পাসওয়ার্ড দিন" style="width: 250px;"><br><br>
+            <input type="password" id="adminPass" placeholder="পাসওয়ার্ড দিন" style="width: 250px;"><br><br>
             <button class="btn btn-primary" onclick="loginAdmin()">লগইন</button>
         </div>
 
@@ -94,20 +97,22 @@
             </div>
 
             <div class="admin-tabs no-print">
-                <button class="sub-tab active" onclick="switchAdminTab('entry-tab')">তথ্য এন্ট্রি</button>
-                <button class="sub-tab" onclick="switchAdminTab('list-tab')">সদস্য তালিকা</button>
+                <button class="sub-tab active" id="tab-entry" onclick="switchAdminTab('entry-tab')">তথ্য এন্ট্রি</button>
+                <button class="sub-tab" id="tab-list" onclick="switchAdminTab('list-tab')">সদস্য তালিকা</button>
             </div>
 
             <div id="entry-tab" class="admin-sub-section">
-                <h4>নতুন সদস্য নিবন্ধন</h4>
+                <h4 id="form-title">নতুন সদস্য নিবন্ধন</h4>
                 <div class="input-group">
+                    <input type="hidden" id="editIndex" value="-1">
                     <input type="text" id="regNo" placeholder="সদস্য নং">
                     <input type="text" id="regName" placeholder="সদস্যের নাম">
                     <input type="text" id="regFather" placeholder="পিতার নাম">
                     <input type="text" id="regMobile" placeholder="মোবাইল নম্বর">
                     <input type="number" id="regFixed" placeholder="মাসিক চাঁদা">
                     <input type="text" id="regPhoto" placeholder="ছবির লিংক (URL)">
-                    <button class="btn btn-success" onclick="addNewMember()" style="grid-column: span 2;">সদস্য যুক্ত করুন</button>
+                    <button class="btn btn-success" id="saveBtn" onclick="saveMember()" style="grid-column: span 2;">সদস্য যুক্ত করুন</button>
+                    <button class="btn hidden" id="cancelEditBtn" onclick="resetForm()" style="grid-column: span 2; background:#95a5a6; color:white;">বাতিল করুন</button>
                 </div>
 
                 <h4>মাসিক পেমেন্ট এন্ট্রি</h4>
@@ -116,7 +121,7 @@
                     <div id="nameHint" style="grid-column: span 2; font-weight: bold; color: var(--primary);"></div>
                     <input type="number" id="payAmount" placeholder="টাকার পরিমাণ">
                     <select id="payMonth">
-                        <option>জানুয়ারি</option><option>ফেব্রুয়ারি</option><option>মার্চ</option>
+                        <option>জানুয়ারি</option><option>ফেব্রুয়ারি</option><option>মার্চ</option>
                         <option>এপ্রিল</option><option>মে</option><option>জুন</option>
                         <option>জুলাই</option><option>আগস্ট</option><option>সেপ্টেম্বর</option>
                         <option>অক্টোবর</option><option>নভেম্বর</option><option>ডিসেম্বর</option>
@@ -149,30 +154,60 @@
 </div>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('organizationDB')) || [];
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyPbrxJLY9QvAd5ZsMePQl-6ntCUFV5ReFhMS4GDdGZzyMnY7omE6v0VgOkN5P_AOtepg/exec";
+    
+    let db = [];
 
-    // ন্যাভিগেশন লজিক
+    window.onload = async function() {
+        toggleLoader(true);
+        try {
+            let res = await fetch(SCRIPT_URL + "?action=load");
+            db = await res.json();
+            localStorage.setItem('organizationDB', JSON.stringify(db));
+        } catch(e) {
+            db = JSON.parse(localStorage.getItem('organizationDB')) || [];
+        }
+        toggleLoader(false);
+    };
+
+    async function syncWithSheet() {
+        toggleLoader(true);
+        localStorage.setItem('organizationDB', JSON.stringify(db));
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: "save", members: db })
+            });
+        } catch(e) { console.log(e); }
+        setTimeout(() => toggleLoader(false), 2000);
+    }
+
+    function toggleLoader(show) {
+        document.getElementById('loader').style.display = show ? 'flex' : 'none';
+    }
+
     function switchMainTab(tabId) {
         document.querySelectorAll('.main-section').forEach(s => s.classList.add('hidden'));
         document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
         document.getElementById(tabId).classList.remove('hidden');
-        event.currentTarget.classList.add('active');
+        if(event) event.currentTarget.classList.add('active');
     }
 
     function switchAdminTab(subTabId) {
         document.querySelectorAll('.admin-sub-section').forEach(s => s.classList.add('hidden'));
         document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
         document.getElementById(subTabId).classList.remove('hidden');
-        event.currentTarget.classList.add('active');
+        document.getElementById('tab-' + (subTabId === 'entry-tab' ? 'entry' : 'list')).classList.add('active');
         if(subTabId === 'list-tab') renderAdminTable();
     }
 
-    // এডমিন লগইন
     function loginAdmin() {
         if(document.getElementById('adminPass').value === "01686") {
             document.getElementById('admin-login-box').classList.add('hidden');
             document.getElementById('admin-content').classList.remove('hidden');
-        } else { alert("ভুল পাসওয়ার্ড!"); }
+        } else { alert("ভুল পাসওয়ার্ড!"); }
     }
 
     function logoutAdmin() {
@@ -181,7 +216,6 @@
         document.getElementById('adminPass').value = "";
     }
 
-    // মেম্বার লিস্ট টেবিল রেন্ডার
     function renderAdminTable() {
         let html = "";
         db.forEach((m, index) => {
@@ -192,32 +226,76 @@
                 <td>${m.mobile}</td>
                 <td>৳ ${m.fixed}</td>
                 <td><b>৳ ${total}</b></td>
-                <td class="no-print"><button onclick="deleteMember(${index})" style="color:var(--danger); border:none; background:none; cursor:pointer; font-weight:bold;">মুছুন</button></td>
+                <td class="no-print">
+                    <span class="edit-btn" onclick="editMember(${index})">এডিট</span>
+                    <span class="del-btn" onclick="deleteMember(${index})">মুছুন</span>
+                </td>
             </tr>`;
         });
         document.getElementById('admin-member-list').innerHTML = html;
     }
 
-    function deleteMember(index) {
-        if(confirm("আপনি কি নিশ্চিতভাবে এই সদস্যকে ডিলিট করতে চান? সকল পেমেন্ট হিস্ট্রি মুছে যাবে।")) {
-            db.splice(index, 1);
-            saveAndRefresh();
-            renderAdminTable();
-        }
+    // এডিট ফাংশন
+    function editMember(index) {
+        let m = db[index];
+        document.getElementById('editIndex').value = index;
+        document.getElementById('regNo').value = m.no;
+        document.getElementById('regName').value = m.name;
+        document.getElementById('regFather').value = m.father || "";
+        document.getElementById('regMobile').value = m.mobile;
+        document.getElementById('regFixed').value = m.fixed;
+        document.getElementById('regPhoto').value = m.photo;
+        
+        document.getElementById('form-title').innerText = "তথ্য সংশোধন করুন";
+        document.getElementById('saveBtn').innerText = "আপডেট করুন";
+        document.getElementById('cancelEditBtn').classList.remove('hidden');
+        
+        switchAdminTab('entry-tab');
     }
 
-    // বাকি ফাংশনগুলো আগের মতোই...
-    function addNewMember() {
+    function resetForm() {
+        document.getElementById('editIndex').value = "-1";
+        document.getElementById('form-title').innerText = "নতুন সদস্য নিবন্ধন";
+        document.getElementById('saveBtn').innerText = "সদস্য যুক্ত করুন";
+        document.getElementById('cancelEditBtn').classList.add('hidden');
+        document.querySelectorAll('#entry-tab input').forEach(i => i.value = "");
+    }
+
+    async function saveMember() {
+        let index = parseInt(document.getElementById('editIndex').value);
         let no = document.getElementById('regNo').value;
-        if(!no || db.find(m => m.no === no)) return alert("সদস্য নং সঠিক নয় বা ইতিমধ্যে আছে");
-        let member = {
-            no: no, name: document.getElementById('regName').value, father: document.getElementById('regFather').value,
-            mobile: document.getElementById('regMobile').value, fixed: document.getElementById('regFixed').value,
-            photo: document.getElementById('regPhoto').value || "https://via.placeholder.com/120", payments: []
+        
+        if(!no) return alert("সদস্য নং দিন");
+
+        let memberData = {
+            no: no,
+            name: document.getElementById('regName').value,
+            father: document.getElementById('regFather').value,
+            mobile: document.getElementById('regMobile').value,
+            fixed: document.getElementById('regFixed').value,
+            photo: document.getElementById('regPhoto').value || "https://via.placeholder.com/120",
+            payments: (index > -1) ? db[index].payments : []
         };
-        db.push(member);
-        saveAndRefresh();
-        alert("সদস্য যুক্ত হয়েছে!");
+
+        if(index > -1) {
+            db[index] = memberData; // Update existing
+            alert("সদস্যের তথ্য আপডেট হয়েছে!");
+        } else {
+            if(db.find(m => m.no === no)) return alert("এই আইডি আগে থেকেই আছে");
+            db.push(memberData); // Add new
+            alert("সদস্য যুক্ত হয়েছে!");
+        }
+
+        await syncWithSheet();
+        resetForm();
+    }
+
+    async function deleteMember(index) {
+        if(confirm("সদস্য ডিলিট করতে চান?")) {
+            db.splice(index, 1);
+            await syncWithSheet();
+            renderAdminTable();
+        }
     }
 
     function showMemberNameHint() {
@@ -225,15 +303,19 @@
         document.getElementById('nameHint').innerText = m ? "সদস্যের নাম: " + m.name : "";
     }
 
-    function submitPayment() {
+    async function submitPayment() {
         let no = document.getElementById('payNo').value;
         let amt = parseFloat(document.getElementById('payAmount').value);
         let mon = document.getElementById('payMonth').value;
         let index = db.findIndex(m => m.no === no);
-        if(index === -1 || !amt) return alert("তথ্য সঠিক নয়");
+        
+        if(index === -1 || !amt) return alert("তথ্য সঠিক নয়");
+        
         db[index].payments.push({ month: mon, amount: amt, date: new Date().toLocaleDateString('bn-BD') });
-        saveAndRefresh();
+        await syncWithSheet();
         alert("পেমেন্ট সফল!");
+        document.getElementById('payNo').value = "";
+        document.getElementById('payAmount').value = "";
     }
 
     function searchMember() {
@@ -243,7 +325,7 @@
             document.getElementById('memberResult').classList.remove('hidden');
             document.getElementById('m-name').innerText = m.name;
             document.getElementById('m-no').innerText = m.no;
-            document.getElementById('m-father').innerText = m.father;
+            document.getElementById('m-father').innerText = m.father || "N/A";
             document.getElementById('m-mobile').innerText = m.mobile;
             document.getElementById('m-photo').src = m.photo;
             let historyHtml = ""; let total = 0;
@@ -253,12 +335,7 @@
             });
             document.getElementById('m-history-body').innerHTML = historyHtml;
             document.getElementById('m-total').innerText = total;
-        } else alert("সদস্য পাওয়া যায়নি!");
-    }
-
-    function saveAndRefresh() {
-        localStorage.setItem('organizationDB', JSON.stringify(db));
-        document.querySelectorAll('.input-group input').forEach(i => i.value = "");
+        } else alert("সদস্য পাওয়া যায়নি!");
     }
 </script>
 </body>
