@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>সংগঠন ম্যানেজমেন্ট সিস্টেম প্রো</title>
+    <title>????? ???????????? ??????? ????</title>
     <style>
         :root { --primary: #2c3e50; --secondary: #27ae60; --accent: #e67e22; --bg: #f4f7f6; --danger: #e74c3c; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding: 0; }
         
-        /* মেইন ট্যাব স্টাইল */
+        /* ???? ????? ?????? */
         .main-nav { display: flex; background: var(--primary); justify-content: center; position: sticky; top: 0; z-index: 1000; }
         .main-tab { padding: 15px 30px; border: none; background: none; color: white; cursor: pointer; font-size: 18px; font-weight: bold; transition: 0.3s; }
         .main-tab.active { background: white; color: var(--primary); border-radius: 10px 10px 0 0; margin-top: 5px; }
@@ -16,14 +16,14 @@
         .container { max-width: 1000px; margin: 30px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
         .hidden { display: none; }
 
-        /* ফর্ম ও টেবিল স্টাইল */
+        /* ???? ? ????? ?????? */
         .input-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; padding: 20px; background: #f9f9f9; border-radius: 10px; border: 1px solid #ddd; }
         input, select { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
         .btn { padding: 12px 25px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-success { background: var(--secondary); color: white; width: 100%; }
         
-        /* প্রোফাইল ডিসপ্লে */
+        /* ???????? ??????? */
         .member-card { border: 2px solid #eee; border-radius: 15px; padding: 25px; margin-top: 20px; background: #fff; }
         .profile-flex { display: flex; gap: 20px; align-items: center; border-bottom: 2px solid #f0f0f0; padding-bottom: 20px; margin-bottom: 20px; }
         .profile-img { width: 120px; height: 120px; border-radius: 10px; object-fit: cover; border: 3px solid var(--primary); }
@@ -32,7 +32,7 @@
         th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
         th { background: #f2f2f2; color: var(--primary); }
 
-        /* এডমিন সাব-ট্যাব */
+        /* ????? ???-????? */
         .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #eee; }
         .sub-tab { padding: 8px 15px; cursor: pointer; background: #eee; border: none; border-radius: 5px 5px 0 0; }
         .sub-tab.active { background: var(--accent); color: white; }
@@ -43,17 +43,17 @@
 <body>
 
 <nav class="main-nav no-print">
-    <button class="main-tab active" onclick="switchMainTab('member-mode')">সদস্য মোড</button>
-    <button class="main-tab" onclick="switchMainTab('admin-mode')">এডমিন মোড</button>
+    <button class="main-tab active" onclick="switchMainTab('member-mode')">????? ???</button>
+    <button class="main-tab" onclick="switchMainTab('admin-mode')">????? ???</button>
 </nav>
 
 <div class="container">
     
     <div id="member-mode" class="main-section">
-        <h2 style="text-align: center;">সদস্য পেমেন্ট পোর্টাল</h2>
+        <h2 style="text-align: center;">????? ??????? ???????</h2>
         <div class="no-print" style="text-align: center; margin-bottom: 30px;">
-            <input type="text" id="memberSearchInput" placeholder="সদস্য নং বা মোবাইল নম্বর দিন...">
-            <button class="btn btn-primary" onclick="searchMember()">খুঁজুন</button>
+            <input type="text" id="memberSearchInput" placeholder="????? ?? ?? ?????? ????? ???...">
+            <button class="btn btn-primary" onclick="searchMember()">??????</button>
         </div>
 
         <div id="memberResult" class="member-card hidden">
@@ -61,84 +61,84 @@
                 <img id="m-photo" src="" class="profile-img" alt="Member Photo">
                 <div>
                     <h2 id="m-name" style="margin: 0; color: var(--primary);"></h2>
-                    <p>সদস্য নং: <b id="m-no"></b></p>
-                    <p>পিতার নাম: <span id="m-father"></span></p>
-                    <p>মোবাইল: <span id="m-mobile"></span></p>
+                    <p>????? ??: <b id="m-no"></b></p>
+                    <p>????? ???: <span id="m-father"></span></p>
+                    <p>??????: <span id="m-mobile"></span></p>
                 </div>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3>পেমেন্ট হিস্ট্রি</h3>
-                <h3 style="color: var(--secondary);">মোট জমা: ৳ <span id="m-total">০</span></h3>
+                <h3>??????? ????????</h3>
+                <h3 style="color: var(--secondary);">??? ???: ? <span id="m-total">?</span></h3>
             </div>
             <table>
                 <thead>
-                    <tr><th>ক্রমিক</th><th>মাস</th><th>টাকার পরিমাণ</th><th>তারিখ</th></tr>
+                    <tr><th>??????</th><th>???</th><th>????? ??????</th><th>?????</th></tr>
                 </thead>
                 <tbody id="m-history-body"></tbody>
             </table>
-            <button class="btn no-print" style="margin-top: 20px; background: #34495e; color: white;" onclick="window.print()">রিপোর্ট প্রিন্ট করুন</button>
+            <button class="btn no-print" style="margin-top: 20px; background: #34495e; color: white;" onclick="window.print()">??????? ??????? ????</button>
         </div>
     </div>
 
     <div id="admin-mode" class="main-section hidden">
         <div id="admin-login-box" style="text-align: center; padding: 50px 0;">
-            <h3>এডমিন এক্সেস</h3>
-            <input type="password" id="adminPass" placeholder="পাসওয়ার্ড দিন" style="width: 250px;"><br><br>
-            <button class="btn btn-primary" onclick="loginAdmin()">লগইন</button>
+            <h3>????? ??????</h3>
+            <input type="password" id="adminPass" placeholder="????????? ???" style="width: 250px;"><br><br>
+            <button class="btn btn-primary" onclick="loginAdmin()">????</button>
         </div>
 
         <div id="admin-content" class="hidden">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h3 style="color: var(--accent);">এডমিন ড্যাশবোর্ড</h3>
-                <button class="btn" style="background: var(--danger); color: white; padding: 5px 15px;" onclick="logoutAdmin()">লগআউট</button>
+                <h3 style="color: var(--accent);">????? ??????????</h3>
+                <button class="btn" style="background: var(--danger); color: white; padding: 5px 15px;" onclick="logoutAdmin()">?????</button>
             </div>
 
             <div class="admin-tabs no-print">
-                <button class="sub-tab active" onclick="switchAdminTab('entry-tab')">তথ্য এন্ট্রি</button>
-                <button class="sub-tab" onclick="switchAdminTab('list-tab')">সদস্য তালিকা</button>
+                <button class="sub-tab active" onclick="switchAdminTab('entry-tab')">???? ???????</button>
+                <button class="sub-tab" onclick="switchAdminTab('list-tab')">????? ??????</button>
             </div>
 
             <div id="entry-tab" class="admin-sub-section">
-                <h4>নতুন সদস্য নিবন্ধন</h4>
+                <h4>???? ????? ???????</h4>
                 <div class="input-group">
-                    <input type="text" id="regNo" placeholder="সদস্য নং">
-                    <input type="text" id="regName" placeholder="সদস্যের নাম">
-                    <input type="text" id="regFather" placeholder="পিতার নাম">
-                    <input type="text" id="regMobile" placeholder="মোবাইল নম্বর">
-                    <input type="number" id="regFixed" placeholder="মাসিক চাঁদা">
-                    <input type="text" id="regPhoto" placeholder="ছবির লিংক (URL)">
-                    <button class="btn btn-success" onclick="addNewMember()" style="grid-column: span 2;">সদস্য যুক্ত করুন</button>
+                    <input type="text" id="regNo" placeholder="????? ??">
+                    <input type="text" id="regName" placeholder="??????? ???">
+                    <input type="text" id="regFather" placeholder="????? ???">
+                    <input type="text" id="regMobile" placeholder="?????? ?????">
+                    <input type="number" id="regFixed" placeholder="????? ?????">
+                    <input type="text" id="regPhoto" placeholder="???? ???? (URL)">
+                    <button class="btn btn-success" onclick="addNewMember()" style="grid-column: span 2;">????? ????? ????</button>
                 </div>
 
-                <h4>মাসিক পেমেন্ট এন্ট্রি</h4>
+                <h4>????? ??????? ???????</h4>
                 <div class="input-group" style="background: #e8f6ef;">
-                    <input type="text" id="payNo" placeholder="সদস্য নং দিন" oninput="showMemberNameHint()">
+                    <input type="text" id="payNo" placeholder="????? ?? ???" oninput="showMemberNameHint()">
                     <div id="nameHint" style="grid-column: span 2; font-weight: bold; color: var(--primary);"></div>
-                    <input type="number" id="payAmount" placeholder="টাকার পরিমাণ">
+                    <input type="number" id="payAmount" placeholder="????? ??????">
                     <select id="payMonth">
-                        <option>জানুয়ারি</option><option>ফেব্রুয়ারি</option><option>মার্চ</option>
-                        <option>এপ্রিল</option><option>মে</option><option>জুন</option>
-                        <option>জুলাই</option><option>আগস্ট</option><option>সেপ্টেম্বর</option>
-                        <option>অক্টোবর</option><option>নভেম্বর</option><option>ডিসেম্বর</option>
+                        <option>????????</option><option>??????????</option><option>?????</option>
+                        <option>??????</option><option>??</option><option>???</option>
+                        <option>?????</option><option>?????</option><option>??????????</option>
+                        <option>???????</option><option>???????</option><option>????????</option>
                     </select>
-                    <button class="btn btn-primary" onclick="submitPayment()" style="grid-column: span 2; background: var(--secondary);">পেমেন্ট সেভ করুন</button>
+                    <button class="btn btn-primary" onclick="submitPayment()" style="grid-column: span 2; background: var(--secondary);">??????? ??? ????</button>
                 </div>
             </div>
 
             <div id="list-tab" class="admin-sub-section hidden">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <h4>সংগঠনের সকল সদস্যের তালিকা</h4>
-                    <button class="btn no-print" style="background: #34495e; color: white; padding: 5px 10px;" onclick="window.print()">লিস্ট প্রিন্ট</button>
+                    <h4>??????? ??? ??????? ??????</h4>
+                    <button class="btn no-print" style="background: #34495e; color: white; padding: 5px 10px;" onclick="window.print()">????? ???????</button>
                 </div>
                 <table>
                     <thead>
                         <tr>
-                            <th>সদস্য নং</th>
-                            <th>নাম</th>
-                            <th>মোবাইল</th>
-                            <th>নির্ধারিত চাঁদা</th>
-                            <th>মোট জমা</th>
-                            <th class="no-print">অ্যাকশন</th>
+                            <th>????? ??</th>
+                            <th>???</th>
+                            <th>??????</th>
+                            <th>????????? ?????</th>
+                            <th>??? ???</th>
+                            <th class="no-print">???????</th>
                         </tr>
                     </thead>
                     <tbody id="admin-member-list"></tbody>
@@ -151,7 +151,7 @@
 <script>
     let db = JSON.parse(localStorage.getItem('organizationDB')) || [];
 
-    // ন্যাভিগেশন লজিক
+    // ?????????? ????
     function switchMainTab(tabId) {
         document.querySelectorAll('.main-section').forEach(s => s.classList.add('hidden'));
         document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
@@ -167,12 +167,12 @@
         if(subTabId === 'list-tab') renderAdminTable();
     }
 
-    // এডমিন লগইন
+    // ????? ????
     function loginAdmin() {
-        if(document.getElementById('adminPass').value === "1234") {
+        if(document.getElementById('adminPass').value === "0168") {
             document.getElementById('admin-login-box').classList.add('hidden');
             document.getElementById('admin-content').classList.remove('hidden');
-        } else { alert("ভুল পাসওয়ার্ড!"); }
+        } else { alert("??? ?????????!"); }
     }
 
     function logoutAdmin() {
@@ -181,7 +181,7 @@
         document.getElementById('adminPass').value = "";
     }
 
-    // মেম্বার লিস্ট টেবিল রেন্ডার
+    // ??????? ????? ????? ???????
     function renderAdminTable() {
         let html = "";
         db.forEach((m, index) => {
@@ -190,26 +190,26 @@
                 <td>${m.no}</td>
                 <td>${m.name}</td>
                 <td>${m.mobile}</td>
-                <td>৳ ${m.fixed}</td>
-                <td><b>৳ ${total}</b></td>
-                <td class="no-print"><button onclick="deleteMember(${index})" style="color:var(--danger); border:none; background:none; cursor:pointer; font-weight:bold;">মুছুন</button></td>
+                <td>? ${m.fixed}</td>
+                <td><b>? ${total}</b></td>
+                <td class="no-print"><button onclick="deleteMember(${index})" style="color:var(--danger); border:none; background:none; cursor:pointer; font-weight:bold;">?????</button></td>
             </tr>`;
         });
         document.getElementById('admin-member-list').innerHTML = html;
     }
 
     function deleteMember(index) {
-        if(confirm("আপনি কি নিশ্চিতভাবে এই সদস্যকে ডিলিট করতে চান? সকল পেমেন্ট হিস্ট্রি মুছে যাবে।")) {
+        if(confirm("???? ?? ??????????? ?? ??????? ????? ???? ???? ??? ??????? ???????? ???? ?????")) {
             db.splice(index, 1);
             saveAndRefresh();
             renderAdminTable();
         }
     }
 
-    // বাকি ফাংশনগুলো আগের মতোই...
+    // ???? ????????? ???? ????...
     function addNewMember() {
         let no = document.getElementById('regNo').value;
-        if(!no || db.find(m => m.no === no)) return alert("সদস্য নং সঠিক নয় বা ইতিমধ্যে আছে");
+        if(!no || db.find(m => m.no === no)) return alert("????? ?? ???? ?? ?? ???????? ???");
         let member = {
             no: no, name: document.getElementById('regName').value, father: document.getElementById('regFather').value,
             mobile: document.getElementById('regMobile').value, fixed: document.getElementById('regFixed').value,
@@ -217,12 +217,12 @@
         };
         db.push(member);
         saveAndRefresh();
-        alert("সদস্য যুক্ত হয়েছে!");
+        alert("????? ????? ?????!");
     }
 
     function showMemberNameHint() {
         let m = db.find(i => i.no === document.getElementById('payNo').value);
-        document.getElementById('nameHint').innerText = m ? "সদস্যের নাম: " + m.name : "";
+        document.getElementById('nameHint').innerText = m ? "??????? ???: " + m.name : "";
     }
 
     function submitPayment() {
@@ -230,10 +230,10 @@
         let amt = parseFloat(document.getElementById('payAmount').value);
         let mon = document.getElementById('payMonth').value;
         let index = db.findIndex(m => m.no === no);
-        if(index === -1 || !amt) return alert("তথ্য সঠিক নয়");
+        if(index === -1 || !amt) return alert("???? ???? ??");
         db[index].payments.push({ month: mon, amount: amt, date: new Date().toLocaleDateString('bn-BD') });
         saveAndRefresh();
-        alert("পেমেন্ট সফল!");
+        alert("??????? ???!");
     }
 
     function searchMember() {
@@ -249,11 +249,11 @@
             let historyHtml = ""; let total = 0;
             m.payments.forEach((p, i) => {
                 total += p.amount;
-                historyHtml += `<tr><td>${i+1}</td><td>${p.month}</td><td>৳ ${p.amount}</td><td>${p.date}</td></tr>`;
+                historyHtml += `<tr><td>${i+1}</td><td>${p.month}</td><td>? ${p.amount}</td><td>${p.date}</td></tr>`;
             });
             document.getElementById('m-history-body').innerHTML = historyHtml;
             document.getElementById('m-total').innerText = total;
-        } else alert("সদস্য পাওয়া যায়নি!");
+        } else alert("????? ????? ?????!");
     }
 
     function saveAndRefresh() {
