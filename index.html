@@ -3,31 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>সংগঠন ম্যানেজমেন্ট সিস্টেম v5.2</title>
+    <title>সংগঠন ম্যানেজমেন্ট v14.0</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #4361ee; --secondary: #2ec4b6; --danger: #ef233c; --shadow: 0 8px 30px rgba(0,0,0,0.08); }
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
+        :root { --primary: #4361ee; --secondary: #2ec4b6; --danger: #ef233c; --warning: #f39c12; --dark: #1a1c2c; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f7fe; margin: 0; padding: 0; }
+        
         .main-nav { display: flex; background: var(--primary); padding: 10px; position: sticky; top: 0; z-index: 1000; justify-content: center; gap: 10px; }
         .main-tab { padding: 12px 20px; border: none; background: rgba(255,255,255,0.1); color: white; cursor: pointer; font-weight: 600; border-radius: 8px; transition: 0.3s; }
         .main-tab.active { background: white; color: var(--primary); }
+        
         .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
-        .section-card { background: white; padding: 25px; border-radius: 15px; box-shadow: var(--shadow); margin-bottom: 25px; }
+        .section-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        
+        /* Profile UI */
+        .profile-header { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; border-bottom: 2px solid #f0f0f0; padding-bottom: 20px; }
+        .m-photo { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .info-item { background: #f8f9fa; padding: 10px; border-radius: 8px; }
+        .info-item span { font-size: 11px; color: #666; display: block; }
+        .info-item b { font-size: 14px; color: var(--dark); }
+
+        .wa-link { color: #25d366; text-decoration: none; display: flex; align-items: center; gap: 5px; font-weight: bold; }
+
+        .status-box { padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; margin-bottom: 15px; font-size: 16px; }
+        .paid { background: #d1fae5; color: #065f46; border: 1px solid #065f46; }
+        .due { background: #fee2e2; color: #991b1b; border: 1px solid #991b1b; }
+        .note { font-size: 13px; margin-top: 8px; font-weight: normal; }
+
         .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
         .stat-card { background: white; padding: 20px; border-radius: 15px; text-align: center; border-bottom: 4px solid var(--primary); }
+        
         .hidden { display: none !important; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; }
-        .btn { padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; }
+        
+        .btn { padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); }
         .btn-primary { background: var(--primary); color: white; }
         .btn-success { background: var(--secondary); color: white; }
-        .btn-danger { background: var(--danger); color: white; width: auto; font-size: 12px; padding: 5px 10px; }
-        table { width: 100%; border-collapse: collapse; }
+        .btn-warning { background: var(--warning); color: white; padding: 6px 10px; font-size: 12px; width: auto; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
         th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
         th { background: #f8f9fa; }
-        .m-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); }
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
-        .paid { background: #d1fae5; color: #065f46; }
-        .due { background: #fee2e2; color: #991b1b; }
+
         #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: none; justify-content: center; align-items: center; z-index: 9999; flex-direction: column; }
         .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -35,264 +54,243 @@
 </head>
 <body>
 
-<div id="loader">
-    <div class="spinner"></div>
-    <p id="loaderText" style="margin-top:10px; font-weight:bold;">অপেক্ষা করুন...</p>
-</div>
+<div id="loader"><div class="spinner"></div><p style="margin-top:10px; font-weight: bold;">অপেক্ষা করুন...</p></div>
 
 <nav class="main-nav">
-    <button class="main-tab active" id="tab-member-mode" onclick="switchMainTab('member-mode')">সার্চ</button>
-    <button class="main-tab" id="tab-due-list-mode" onclick="switchMainTab('due-list-mode')">বকেয়া</button>
-    <button class="main-tab" id="tab-admin-mode" onclick="switchMainTab('admin-mode')">এডমিন</button>
+    <button class="main-tab active" id="tab-search" onclick="switchTab('search')"><i class="fas fa-search"></i> প্রোফাইল</button>
+    <button class="main-tab" id="tab-admin" onclick="switchTab('admin')"><i class="fas fa-user-shield"></i> এডমিন</button>
 </nav>
 
 <div class="container">
     <div class="dashboard" id="mainDashboard">
-        <div class="stat-card"><h3>মোট সংগ্রহ</h3><p>৳ <span id="org-total-collected">০</span></p></div>
-        <div class="stat-card"><h3>সদস্য</h3><p><span id="org-total-members">০</span> জন</p></div>
+        <div class="stat-card"><h3>মোট সংগ্রহ</h3><p>৳ <span id="stat-total">০</span></p></div>
+        <div class="stat-card"><h3>মোট সদস্য</h3><p><span id="stat-members">০</span> জন</p></div>
     </div>
 
-    <div id="member-mode" class="main-section">
+    <div id="section-search" class="content-section">
         <div class="section-card">
             <div style="display: flex; gap: 10px;">
-                <input type="text" id="memberSearchInput" placeholder="আইডি বা মোবাইল নম্বর...">
-                <button class="btn btn-primary" style="width:100px; height:45px" onclick="searchMember()">খুঁজুন</button>
+                <input type="text" id="searchInput" placeholder="সদস্য আইডি লিখুন..." style="margin-bottom:0">
+                <button class="btn btn-primary" style="width:100px" onclick="searchMember()"><i class="fas fa-search"></i></button>
             </div>
         </div>
-        <div id="memberResult" class="section-card hidden">
-            <div style="display:flex; align-items:center; gap:20px; margin-bottom:20px;">
-                <img id="m-photo" src="" class="m-img" onerror="this.src='https://via.placeholder.com/80'">
-                <div>
-                    <h2 id="m-name" style="margin:0; color:var(--primary);"></h2>
-                    <p>আইডি: <b id="m-no"></b> | <span id="m-mobile-disp"></span></p>
-                    <div id="statusBadgeDisplay"></div>
-                </div>
-            </div>
-            <div style="background:#f8f9fa; padding:15px; border-radius:10px; font-size:14px;">
-                <p><b>পিতার নাম:</b> <span id="m-father"></span></p>
-                <p><b>ঠিকানা:</b> <span id="m-address"></span></p>
-            </div>
-            <h4>পেমেন্ট হিস্ট্রি</h4>
-            <div style="overflow-x:auto"><table><thead><tr><th>মাস ও বছর</th><th>টাকা</th><th>মাধ্যম</th><th>তারিখ</th></tr></thead><tbody id="m-history-body"></tbody></table></div>
-            <div style="background:var(--primary); color:white; padding:15px; border-radius:10px; margin-top:15px; display:flex; justify-content:space-between;">
-                <span>ব্যক্তিগত মোট জমা</span><b id="m-total-amount">৳ ০</b>
-            </div>
-        </div>
+        <div id="searchResult" class="section-card hidden"></div>
     </div>
 
-    <div id="due-list-mode" class="main-section hidden">
-        <div class="section-card">
-            <h3 style="text-align: center;">চলতি মাসের বকেয়া তালিকা</h3>
-            <table><thead><tr><th>আইডি</th><th>নাম</th><th>অবস্থা</th></tr></thead><tbody id="due-list-body"></tbody></table>
-        </div>
-    </div>
-
-    <div id="admin-mode" class="main-section hidden">
-        <div id="admin-login-box" class="section-card" style="max-width:350px; margin:auto">
-            <h4 style="text-align:center">লগইন</h4>
+    <div id="section-admin" class="content-section hidden">
+        <div id="admin-login" class="section-card" style="max-width:350px; margin:auto">
+            <h4>এডমিন লগইন</h4>
             <input type="password" id="adminPass" placeholder="পাসওয়ার্ড">
-            <button class="btn btn-primary" onclick="loginAdmin()">প্রবেশ</button>
+            <button class="btn btn-primary" onclick="verifyAdmin()">লগইন</button>
         </div>
-        <div id="admin-content" class="hidden">
-            <div style="display:flex; gap:10px; margin-bottom:20px">
-                <button class="btn btn-primary" onclick="switchAdminSub('pay')">পেমেন্ট</button>
-                <button class="btn btn-primary" onclick="switchAdminSub('reg')">রেজিস্ট্রেশন</button>
-                <button class="btn btn-primary" onclick="switchAdminSub('manage')">তালিকা</button>
-            </div>
-            <div id="admin-pay" class="admin-sub section-card">
-                <h4>পেমেন্ট এন্ট্রি</h4>
-                <input type="text" id="payNo" placeholder="সদস্য আইডি" oninput="showHint()">
-                <div id="nameHint" style="color:var(--primary); font-weight:bold; margin-bottom:10px;"></div>
-                <input type="number" id="payAmount" placeholder="টাকার পরিমাণ">
-                <select id="payMethod"><option>নগদ</option><option>বিকাশ</option><option>ব্যাংক</option></select>
-                <div style="display:flex; gap:10px">
+
+        <div id="admin-panel" class="hidden">
+            <div class="section-card">
+                <h4><i class="fas fa-money-bill-wave"></i> পেমেন্ট এন্ট্রি</h4>
+                <input type="text" id="payId" placeholder="সদস্য আইডি" oninput="fetchNameHint(this.value)">
+                <p id="payNameHint" style="color:var(--secondary); font-weight:bold; margin-top:-10px;"></p>
+                <input type="number" id="payAmt" placeholder="টাকার পরিমাণ">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
                     <select id="payMonth">
                         <option>জানুয়ারি</option><option>ফেব্রুয়ারি</option><option>মার্চ</option><option>এপ্রিল</option><option>মে</option><option>জুন</option><option>জুলাই</option><option>আগস্ট</option><option>সেপ্টেম্বর</option><option>অক্টোবর</option><option>নভেম্বর</option><option>ডিসেম্বর</option>
                     </select>
-                    <select id="payYear">
-                        <option>২০২৫</option><option selected>২০২৬</option><option>২০২৭</option><option>২০২৮</option>
-                    </select>
+                    <select id="payYear"><option>2025</option><option selected>2026</option><option>2027</option></select>
                 </div>
-                <button class="btn btn-success" onclick="submitPayment()">সেভ পেমেন্ট</button>
+                <select id="payMethod"><option>ক্যাশ</option><option>বিকাশ</option><option>ব্যাংক</option></select>
+                <button class="btn btn-success" onclick="addPayment()">সেভ ও রিসিভট পাঠান</button>
             </div>
-            <div id="admin-reg" class="admin-sub hidden section-card">
-                <h4>নতুন সদস্য নিবন্ধন</h4>
-                <input type="text" id="regNo" placeholder="আইডি">
-                <input type="text" id="regName" placeholder="নাম">
+
+            <div class="section-card">
+                <h4 id="regFormTitle"><i class="fas fa-user-plus"></i> নতুন সদস্য নিবন্ধন</h4>
+                <input type="hidden" id="editMemberIdx" value="-1">
+                <input type="text" id="regId" placeholder="সদস্য আইডি">
+                <input type="text" id="regName" placeholder="সদস্যের নাম">
                 <input type="text" id="regFather" placeholder="পিতার নাম">
-                <input type="text" id="regMobile" placeholder="মোবাইল">
-                <input type="text" id="regPhoto" placeholder="ফটো লিঙ্ক">
-                <textarea id="regAddress" placeholder="ঠিকানা"></textarea>
-                <button class="btn btn-success" onclick="saveMember()">নিবন্ধন করুন</button>
+                <input type="text" id="regMobile" placeholder="মোবাইল নাম্বার">
+                <input type="text" id="regAddr" placeholder="ঠিকানা">
+                <input type="text" id="regPhoto" placeholder="গুগল ড্রাইভ ফটো লিঙ্ক">
+                <button class="btn btn-primary" id="saveBtn" onclick="handleMemberSave()">সেভ করুন</button>
+                <button class="btn btn-danger hidden" id="cancelEditBtn" style="margin-top:10px" onclick="resetRegForm()">এডিট বাতিল করুন</button>
             </div>
-            <div id="admin-manage" class="admin-sub hidden section-card">
-                <h4>সদস্য তালিকা</h4>
-                <table><thead><tr><th>আইডি</th><th>নাম</th><th>অ্যাকশন</th></tr></thead><tbody id="admin-member-list"></tbody></table>
+
+            <div class="section-card">
+                <h4><i class="fas fa-users"></i> সদস্য তালিকা ও এডিট</h4>
+                <div style="overflow-x:auto">
+                    <table>
+                        <thead><tr><th>আইডি</th><th>নাম</th><th>অ্যাকশন</th></tr></thead>
+                        <tbody id="memberTableBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby8IcM8hy3ZodoNwY5zIJSCQtR6PmBHe0TcJrf4KP7TLsjXNeEoU9WX2PJV_Z00ot0L/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyUl1Po10R5G9cd4N6xZNTeT0x1y_c3FWaDXfhOXzcnaglO7oc8d8ybjnXmv7pZTDiw/exec";
     let db = [];
-    const bnMonths = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
 
     window.onload = loadData;
 
     async function loadData() {
-        toggleLoader(true, "ডাটা লোড হচ্ছে...");
+        toggleLoader(true);
         try {
             const res = await fetch(SCRIPT_URL + "?action=load");
-            const data = await res.json();
-            db = Array.isArray(data) ? data : [];
-            updateUI();
-        } catch(e) { 
-            db = JSON.parse(localStorage.getItem('orgData')) || []; 
-            updateUI();
-        }
+            db = await res.json();
+            renderUI();
+        } catch (e) { db = JSON.parse(localStorage.getItem('backup_db')) || []; renderUI(); }
         toggleLoader(false);
     }
 
     async function sync() {
-        toggleLoader(true, "গুগল শীটে সেভ হচ্ছে...");
-        try {
-            await fetch(SCRIPT_URL, { 
-                method: 'POST', 
-                mode: 'no-cors', 
-                body: JSON.stringify({action: "save", members: db}) 
-            });
-            setTimeout(loadData, 2500);
-        } catch(e) { alert("Error: " + e); toggleLoader(false); }
+        toggleLoader(true);
+        await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "save", members: db }) });
+        setTimeout(loadData, 2000);
     }
 
-    function updateUI() {
+    function renderUI() {
         let total = 0;
-        db.forEach(m => { if(m.payments) m.payments.forEach(p => total += parseFloat(p.amount) || 0); });
-        document.getElementById('org-total-collected').innerText = total.toLocaleString('bn-BD');
-        document.getElementById('org-total-members').innerText = db.length.toLocaleString('bn-BD');
-        localStorage.setItem('orgData', JSON.stringify(db));
-        renderAdminList();
+        let mRows = "";
+        db.forEach((m, idx) => { 
+            if(m.payments) m.payments.forEach(p => total += parseFloat(p.amount) || 0);
+            mRows += `<tr>
+                <td>${m.no}</td>
+                <td>${m.name}</td>
+                <td><button class="btn btn-warning" onclick="editMember(${idx})"><i class="fas fa-edit"></i> Edit</button></td>
+            </tr>`;
+        });
+        document.getElementById('stat-total').innerText = total;
+        document.getElementById('stat-members').innerText = db.length;
+        document.getElementById('memberTableBody').innerHTML = mRows;
+        localStorage.setItem('backup_db', JSON.stringify(db));
     }
 
+    // --- Search Logic ---
     function searchMember() {
-        let key = document.getElementById('memberSearchInput').value.trim();
-        let m = db.find(i => i.no === key || i.mobile === key);
-        if(!m) return alert("পাওয়া যায়নি!");
-        document.getElementById('memberResult').classList.remove('hidden');
-        document.getElementById('m-name').innerText = m.name;
-        document.getElementById('m-no').innerText = m.no;
-        document.getElementById('m-mobile-disp').innerText = m.mobile || "";
-        document.getElementById('m-father').innerText = m.father || "-";
-        document.getElementById('m-address').innerText = m.address || "-";
-        
-        if(m.photoUrl) {
-            let id = m.photoUrl.match(/[-\w]{25,}/);
-            document.getElementById('m-photo').src = id ? `https://drive.google.com/thumbnail?id=${id[0]}&sz=w200` : m.photoUrl;
-        }
+        const id = document.getElementById('searchInput').value.trim();
+        const m = db.find(x => x.no === id || x.mobile === id);
+        if(!m) return alert("সদস্য পাওয়া যায়নি!");
 
-        const curMonth = bnMonths[new Date().getMonth()];
-        const curYear = "২০২৬";
-        const paid = m.payments && m.payments.some(p => p.month.includes(curMonth) && p.month.includes(curYear));
-        document.getElementById('statusBadgeDisplay').innerHTML = `<span class="badge ${paid ? 'paid' : 'due'}">${paid ? 'পরিশোধিত' : 'বকেয়া'}</span>`;
-        
-        let h = ""; let t = 0;
-        if(m.payments) {
-            m.payments.forEach(p => {
-                t += parseFloat(p.amount);
-                h += `<tr><td>${p.month}</td><td>${p.amount}</td><td>${p.method}</td><td>${p.date}</td></tr>`;
-            });
-        }
-        document.getElementById('m-history-body').innerHTML = h || "<tr><td colspan='4'>নেই</td></tr>";
-        document.getElementById('m-total-amount').innerText = "৳ " + t.toLocaleString('bn-BD');
+        const resDiv = document.getElementById('searchResult');
+        resDiv.classList.remove('hidden');
+
+        const date = new Date();
+        const months = ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
+        const currentMonth = months[date.getMonth()];
+        const isPaid = m.payments?.some(p => p.month.includes(currentMonth) && p.month.includes(date.getFullYear()));
+
+        let totalPaid = 0;
+        if(m.payments) m.payments.forEach(p => totalPaid += parseFloat(p.amount) || 0);
+
+        let img = m.photoUrl ? m.photoUrl.replace("file/d/", "uc?export=view&id=").replace("/view?usp=sharing", "") : "https://via.placeholder.com/100";
+        if(img.includes("id=")) img = `https://drive.google.com/uc?export=view&id=${img.split('id=')[1].split('&')[0]}`;
+
+        resDiv.innerHTML = `
+            <div class="profile-header">
+                <img src="${img}" class="m-photo" onerror="this.src='https://via.placeholder.com/100'">
+                <div><h2 style="margin:0">${m.name}</h2><p style="margin:0; color:#666;">আইডি: ${m.no}</p></div>
+            </div>
+            <div class="status-box ${isPaid ? 'paid' : 'due'}">
+                ${isPaid ? `<i class="fas fa-check-circle"></i> <span style="color:#065f46">অভিনন্দন! চলতি মাসের চাঁদা পরিশোধ</span>` : `<i class="fas fa-exclamation-triangle"></i> চলতি মাসের চাঁদা বকেয়া<div class="note"><b>বিঃদ্রঃ:</b> ১৫ তারিখের মধ্যে চাঁদা পরিশোধ করুন।</div>`}
+            </div>
+            <div class="info-grid">
+                <div class="info-item"><span>পিতার নাম</span><b>${m.father || '---'}</b></div>
+                <div class="info-item"><span>মোবাইল</span><a href="https://wa.me/88${m.mobile}" target="_blank" class="wa-link"><i class="fab fa-whatsapp"></i> ${m.mobile}</a></div>
+                <div class="info-item"><span>ঠিকানা</span><b>${m.address || '---'}</b></div>
+                <div class="info-item"><span>মোট জমা</span><b style="color:var(--secondary)">৳ ${totalPaid}</b></div>
+            </div>
+            <h4>পেমেন্ট রেকর্ড</h4>
+            <table>
+                <thead><tr><th>মাস</th><th>টাকা</th><th>মাধ্যম</th></tr></thead>
+                <tbody>${m.payments ? m.payments.map(p => `<tr><td>${p.month}</td><td>৳${p.amount}</td><td>${p.method}</td></tr>`).join('') : '<tr><td colspan="3">রেকর্ড নেই</td></tr>'}</tbody>
+            </table>
+        `;
     }
 
-    async function submitPayment() {
-        let no = document.getElementById('payNo').value.trim();
-        let amt = document.getElementById('payAmount').value;
-        let mon = document.getElementById('payMonth').value;
-        let yer = document.getElementById('payYear').value;
-        let idx = db.findIndex(x => x.no === no);
+    // --- Admin: Edit Member Logic ---
+    function editMember(idx) {
+        const m = db[idx];
+        document.getElementById('editMemberIdx').value = idx;
+        document.getElementById('regId').value = m.no;
+        document.getElementById('regName').value = m.name;
+        document.getElementById('regFather').value = m.father || "";
+        document.getElementById('regMobile').value = m.mobile;
+        document.getElementById('regAddr').value = m.address || "";
+        document.getElementById('regPhoto').value = m.photoUrl || "";
         
-        if(idx === -1 || !amt) return alert("সঠিক তথ্য দিন");
+        document.getElementById('regFormTitle').innerHTML = '<i class="fas fa-user-edit"></i> সদস্য তথ্য এডিট করুন';
+        document.getElementById('saveBtn').innerText = "আপডেট করুন";
+        document.getElementById('cancelEditBtn').classList.remove('hidden');
         
+        // ফর্মের দিকে স্ক্রল করা
+        document.getElementById('regFormTitle').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetRegForm() {
+        document.getElementById('editMemberIdx').value = "-1";
+        document.getElementById('regId').value = "";
+        document.getElementById('regName').value = "";
+        document.getElementById('regFather').value = "";
+        document.getElementById('regMobile').value = "";
+        document.getElementById('regAddr').value = "";
+        document.getElementById('regPhoto').value = "";
+        
+        document.getElementById('regFormTitle').innerHTML = '<i class="fas fa-user-plus"></i> নতুন সদস্য নিবন্ধন';
+        document.getElementById('saveBtn').innerText = "সেভ করুন";
+        document.getElementById('cancelEditBtn').classList.add('hidden');
+    }
+
+    async function handleMemberSave() {
+        const idx = parseInt(document.getElementById('editMemberIdx').value);
+        const memberData = {
+            no: document.getElementById('regId').value.trim(),
+            name: document.getElementById('regName').value.trim(),
+            father: document.getElementById('regFather').value.trim(),
+            mobile: document.getElementById('regMobile').value.trim(),
+            address: document.getElementById('regAddr').value.trim(),
+            photoUrl: document.getElementById('regPhoto').value.trim()
+        };
+
+        if(!memberData.no || !memberData.name) return alert("আইডি ও নাম আবশ্যক!");
+
+        if (idx === -1) {
+            // নতুন মেম্বার
+            memberData.payments = [];
+            db.push(memberData);
+        } else {
+            // পুরাতন মেম্বার আপডেট (পেমেন্ট হিস্ট্রি ঠিক রেখে)
+            db[idx] = { ...db[idx], ...memberData };
+        }
+
+        resetRegForm();
+        await sync();
+    }
+
+    // --- Admin: Other Logic ---
+    async function addPayment() {
+        const id = document.getElementById('payId').value.trim();
+        const amt = document.getElementById('payAmt').value;
+        const mon = document.getElementById('payMonth').value + " " + document.getElementById('payYear').value;
+        const met = document.getElementById('payMethod').value;
+        const idx = db.findIndex(x => x.no === id);
+        if(idx === -1 || !amt) return alert("সঠিক তথ্য দিন!");
         if(!db[idx].payments) db[idx].payments = [];
-        db[idx].payments.push({
-            month: mon + " " + yer,
-            amount: amt,
-            method: document.getElementById('payMethod').value,
-            date: new Date().toLocaleDateString('bn-BD')
-        });
+        db[idx].payments.push({ month: mon, amount: amt, method: met, date: new Date().toLocaleDateString('bn-BD') });
         await sync();
-        document.getElementById('payNo').value = ""; document.getElementById('payAmount').value = "";
+        if(confirm("সেভ হয়েছে। হোয়াটসঅ্যাপে রিসিভট পাঠাতে চান?")) window.open(`https://wa.me/88${db[idx].mobile}?text=*রিসিভট*%0Aসদস্য: ${db[idx].name}%0Aমাস: ${mon}%0Aটাকা: ৳${amt}`, '_blank');
+        document.getElementById('payId').value = ""; document.getElementById('payAmt').value = "";
     }
 
-    async function saveMember() {
-        let no = document.getElementById('regNo').value.trim();
-        let name = document.getElementById('regName').value.trim();
-        if(!no || !name) return alert("ID ও নাম দিন");
-        db.push({
-            no, name, 
-            father: document.getElementById('regFather').value,
-            mobile: document.getElementById('regMobile').value,
-            photoUrl: document.getElementById('regPhoto').value,
-            address: document.getElementById('regAddress').value,
-            payments: []
-        });
-        await sync();
-        ['regNo','regName','regFather','regMobile','regPhoto','regAddress'].forEach(i => document.getElementById(i).value = "");
+    function switchTab(t) {
+        document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
+        document.getElementById('section-'+t).classList.remove('hidden');
+        document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-'+t).classList.add('active');
     }
 
-    function renderAdminList() {
-        let h = "";
-        db.forEach((m, i) => { h += `<tr><td>${m.no}</td><td>${m.name}</td><td><button class="btn-danger" onclick="deleteMember(${i})">ডিলিট</button></td></tr>`; });
-        document.getElementById('admin-member-list').innerHTML = h;
-    }
-
-    async function deleteMember(i) { if(confirm("ডিলিট করবেন?")) { db.splice(i, 1); await sync(); } }
-
-    function switchMainTab(id) {
-        document.querySelectorAll('.main-section').forEach(s => s.classList.add('hidden'));
-        document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(id).classList.remove('hidden');
-        document.getElementById('tab-'+id).classList.add('active');
-        if(id === 'due-list-mode') renderDueList();
-        document.getElementById('mainDashboard').style.display = (id === 'admin-mode') ? 'none' : 'grid';
-    }
-
-    function switchAdminSub(id) {
-        document.querySelectorAll('.admin-sub').forEach(s => s.classList.add('hidden'));
-        document.getElementById('admin-'+id).classList.remove('hidden');
-    }
-
-    function renderDueList() {
-        const curMonth = bnMonths[new Date().getMonth()];
-        const curYear = "২০২৬";
-        let h = "";
-        db.forEach(m => {
-            const p = m.payments && m.payments.some(x => x.month.includes(curMonth) && x.month.includes(curYear));
-            h += `<tr><td>${m.no}</td><td>${m.name}</td><td><span class="badge ${p ? 'paid' : 'due'}">${p ? 'পরিশোধিত' : 'বকেয়া'}</span></td></tr>`;
-        });
-        document.getElementById('due-list-body').innerHTML = h;
-    }
-
-    function loginAdmin() {
-        if(document.getElementById('adminPass').value === "01686") {
-            document.getElementById('admin-login-box').classList.add('hidden');
-            document.getElementById('admin-content').classList.remove('hidden');
-        } else alert("ভুল পাসওয়ার্ড!");
-    }
-
-    function showHint() {
-        let id = document.getElementById('payNo').value.trim();
-        let m = db.find(x => x.no === id);
-        document.getElementById('nameHint').innerText = m ? "নাম: " + m.name : "";
-    }
-
-    function toggleLoader(s, text) { 
-        document.getElementById('loader').style.display = s ? 'flex' : 'none'; 
-        if(text) document.getElementById('loaderText').innerText = text;
-    }
+    function verifyAdmin() { if(document.getElementById('adminPass').value === "01686") document.getElementById('admin-panel').classList.remove('hidden'); else alert("ভুল পাসওয়ার্ড!"); }
+    function fetchNameHint(id) { const m = db.find(x => x.no === id); document.getElementById('payNameHint').innerText = m ? m.name : ""; }
+    function toggleLoader(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
 </script>
 </body>
 </html>
