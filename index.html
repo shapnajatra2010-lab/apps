@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>সংগঠন ড্যাশবোর্ড v26.0</title>
+    <title>সংগঠন ড্যাশবোর্ড v26.2</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <style>
         :root { 
             --primary: #4361ee; --secondary: #2ec4b6; --danger: #ef233c; --warning: #f39c12; --dark: #1a1c2c; --bg: #f8faff;
@@ -18,6 +20,11 @@
 
         .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
         .section-card { background: var(--glass); padding: 25px; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.3); }
+
+        /* Summary Stats */
+        .stat-card { background: linear-gradient(135deg, #4361ee, #3a0ca3); color: white; padding: 20px; border-radius: 20px; text-align: center; margin-bottom: 20px; }
+        .stat-card h2 { margin: 10px 0 0; font-size: 28px; }
+        .stat-card p { margin: 0; opacity: 0.9; font-size: 14px; }
 
         .admin-menu { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .menu-btn { padding: 15px 5px; border: none; border-radius: 15px; background: white; color: var(--dark); cursor: pointer; font-size: 11px; font-weight: 700; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 8px; border: 2px solid transparent; }
@@ -34,7 +41,6 @@
         .search-box { display: flex; background: white; border-radius: 15px; padding: 5px; border: 2px solid #eef2ff; }
         .search-box input { border: none; padding: 12px 15px; outline: none; width: 100%; font-size: 16px; border-radius: 10px; }
         
-        .m-photo { width: 110px; height: 110px; border-radius: 35px; object-fit: cover; border: 4px solid white; box-shadow: 0 8px 20px rgba(0,0,0,0.1); margin: 0 auto 15px; display: block; }
         .status-badge { display: inline-block; padding: 6px 16px; border-radius: 100px; font-size: 12px; font-weight: 700; margin-bottom: 15px; }
         .status-badge.paid { background: #e6fffa; color: #00b894; }
         .status-badge.due { background: #fff5f5; color: #ff7675; }
@@ -45,15 +51,18 @@
         .info-item b { font-size: 13px; color: var(--dark); word-break: break-word; }
 
         .payment-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
-        .action-btn { padding: 12px; border-radius: 15px; text-decoration: none; text-align: center; font-size: 12px; font-weight: 600; color: white; }
-        
         .hidden { display: none !important; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 12px; box-sizing: border-box; font-size: 14px; font-family: inherit; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; margin-bottom: 12px; box-sizing: border-box; font-size: 14px; }
         .btn-main { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 600; }
-        .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+        
+        .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .admin-table td { padding: 10px; border-bottom: 1px solid #eee; }
         .edit-btn { background: var(--warning); color: white; border: none; padding: 5px 10px; border-radius: 8px; cursor: pointer; }
+
+        #receiptModal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .receipt-card { background: white; padding: 20px; border-radius: 20px; width: 100%; max-width: 350px; position: relative; }
+        #pdf-template { background: white; padding: 20px; color: #000; font-family: 'Arial', sans-serif; }
+        .receipt-header { text-align: center; border-bottom: 2px solid #4361ee; padding-bottom: 10px; margin-bottom: 15px; }
 
         #loader { position: fixed; inset: 0; background: var(--bg); display: none; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; }
         .spinner { width: 40px; height: 40px; border: 4px solid #eef2ff; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s infinite linear; }
@@ -74,35 +83,34 @@
         <div class="section-card">
             <h3 style="margin-top:0; font-size:17px">সদস্য তথ্য অনুসন্ধান</h3>
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="আইডি বা মোবাইল দিন...">
+                <input type="text" id="searchInput" placeholder="আইডি নাম্বার দিন...">
                 <button onclick="searchMember()" style="background:var(--primary); color:white; border:none; padding:10px 18px; border-radius:10px; cursor:pointer"><i class="fas fa-search"></i></button>
             </div>
         </div>
-
         <div id="searchResult" class="hidden"></div>
 
         <div class="section-card">
             <h4 style="margin-top:0; font-size:15px; color:var(--danger)"><i class="fas fa-phone-alt"></i> জরুরি যোগাযোগ</h4>
             <div class="contact-grid">
                 <div class="contact-item">
-                    <div class="contact-info"><h5>সভাপতি</h5><p>মোঃ আনোয়ার হোসেন</p></div>
+                    <div class="contact-info"><h5>সভাপতি</h5><p>মোঃ আনোয়ার হোসেন</p></div>
                     <div class="contact-btns">
                         <a href="tel:01711000000" class="c-icon" style="background:#4834d4"><i class="fas fa-phone"></i></a>
                         <a href="https://wa.me/8801711000000" class="c-icon" style="background:#25d366"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
                 <div class="contact-item">
-                    <div class="contact-info"><h5>সাধারণ সম্পাদক</h5><p>মোঃ সবুজ মিয়া</p></div>
+                    <div class="contact-info"><h5>সাধারণ সম্পাদক</h5><p>মোঃ সবুজ মিয়া</p></div>
                     <div class="contact-btns">
-                        <a href="tel:01811000000" class="c-icon" style="background:#4834d4"><i class="fas fa-phone"></i></a>
-                        <a href="https://wa.me/8801811000000" class="c-icon" style="background:#25d366"><i class="fab fa-whatsapp"></i></a>
+                        <a href="tel:01924208700" class="c-icon" style="background:#4834d4"><i class="fas fa-phone"></i></a>
+                        <a href="https://wa.me/8801924208700" class="c-icon" style="background:#25d366"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
                 <div class="contact-item">
                     <div class="contact-info"><h5>ক্যাশিয়ার</h5><p>বেলাল হোসেন</p></div>
                     <div class="contact-btns">
-                        <a href="tel:01915888122" class="c-icon" style="background:#4834d4"><i class="fas fa-phone"></i></a>
-                        <a href="https://wa.me/8801915888122" class="c-icon" style="background:#25d366"><i class="fab fa-whatsapp"></i></a>
+                        <a href="tel:01832211551" class="c-icon" style="background:#4834d4"><i class="fas fa-phone"></i></a>
+                        <a href="https://wa.me/8801832211551" class="c-icon" style="background:#25d366"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
             </div>
@@ -112,20 +120,25 @@
     <div id="section-admin" class="content-section hidden">
         <div id="admin-login" class="section-card" style="max-width:320px; margin:auto">
             <h4 style="text-align:center">এডমিন লগইন</h4>
-            <input type="password" id="adminPass" placeholder="পাসওয়ার্ড দিন">
+            <input type="password" id="adminPass" placeholder="পাসওয়ার্ড দিন">
             <button class="btn-main" onclick="verifyAdmin()">লগইন</button>
         </div>
 
         <div id="admin-panel" class="hidden">
+            <div class="stat-card">
+                <p><i class="fas fa-wallet"></i> সমিতির সর্বমোট আদায়</p>
+                <h2 id="totalGrandCollection">৳ 0</h2>
+            </div>
+
             <div class="admin-menu">
-                <button class="menu-btn active" id="btn-due" onclick="switchAdminSub('due')"><i class="fas fa-file-invoice-dollar"></i>বকেয়া রিপোর্ট</button>
+                <button class="menu-btn active" id="btn-due" onclick="switchAdminSub('due')"><i class="fas fa-file-invoice-dollar"></i>বকেয়া রিপোর্ট</button>
                 <button class="menu-btn" id="btn-pay" onclick="switchAdminSub('pay')"><i class="fas fa-hand-holding-usd"></i>পেমেন্ট এন্ট্রি</button>
                 <button class="menu-btn" id="btn-member" onclick="switchAdminSub('member')"><i class="fas fa-users-cog"></i>সদস্য ব্যবস্থাপনা</button>
             </div>
 
             <div id="sub-due" class="admin-sub-content">
                 <div class="section-card" style="border-left: 5px solid var(--danger);">
-                    <h4>বকেয়া তালিকা রিপোর্ট</h4>
+                    <h4>বকেয়া তালিকা রিপোর্ট</h4>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
                         <select id="reportMonth">
                             <option>জানুয়ারি</option><option>ফেব্রুয়ারি</option><option>মার্চ</option><option>এপ্রিল</option><option>মে</option><option>জুন</option><option>জুলাই</option><option>আগস্ট</option><option>সেপ্টেম্বর</option><option>অক্টোবর</option><option>নভেম্বর</option><option>ডিসেম্বর</option>
@@ -140,7 +153,7 @@
             <div id="sub-pay" class="admin-sub-content hidden">
                 <div class="section-card" style="border-left: 5px solid var(--secondary);">
                     <h4>নতুন পেমেন্ট এন্ট্রি</h4>
-                    <input type="text" id="payId" placeholder="সদস্য আইডি" oninput="fetchNameHint(this.value)">
+                    <input type="text" id="payId" placeholder="সদস্য আইডি" oninput="fetchMemberInfo(this.value)">
                     <p id="payNameHint" style="color:var(--secondary); font-weight:bold; margin-top:-10px; font-size:13px"></p>
                     <input type="number" id="payAmt" placeholder="টাকার পরিমাণ">
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px">
@@ -149,7 +162,7 @@
                         </select>
                         <select id="payYear"><option selected>2026</option><option>2027</option></select>
                     </div>
-                    <button class="btn-main" onclick="addPayment()" style="background:var(--secondary)">পেমেন্ট সেভ করুন</button>
+                    <button class="btn-main" onclick="addPayment()" style="background:var(--secondary)">পেমেন্ট সেভ ও রিসিট</button>
                 </div>
             </div>
 
@@ -161,7 +174,6 @@
                     <input type="text" id="regName" placeholder="নাম">
                     <input type="text" id="regMobile" placeholder="মোবাইল">
                     <textarea id="regAddress" placeholder="ঠিকানা" rows="2"></textarea>
-                    <input type="text" id="regPhoto" placeholder="ফটো ড্রাইভ লিঙ্ক">
                     <button class="btn-main" id="saveBtn" onclick="handleSave()">তথ্য সেভ করুন</button>
                     <button id="cancelBtn" class="hidden" onclick="resetForm()" style="background:none; border:none; color:var(--danger); width:100%; margin-top:10px; cursor:pointer">বাতিল</button>
                 </div>
@@ -174,9 +186,29 @@
     </div>
 </div>
 
+<div id="receiptModal">
+    <div class="receipt-card">
+        <div id="pdf-template">
+            <div class="receipt-header">
+                <h2 style="margin:0; color:#4361ee">পেমেন্ট রিসিট</h2>
+                <p style="margin:5px 0; font-size:12px">স্বপ্নযাত্রা-2010 ড্যাশবোর্ড</p>
+            </div>
+            <div id="rcp-content" style="font-size:14px; line-height:1.8"></div>
+            <div style="margin-top:20px; border-top:1px dashed #ccc; padding-top:10px; text-align:center; font-size:11px">
+                <p>এটি একটি ডিজিটাল রিসিট। পেমেন্ট করার জন্য ধন্যবাদ।</p>
+            </div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:15px">
+            <button class="btn-main" onclick="downloadPDF()" style="background:#25d366"><i class="fas fa-download"></i> PDF সেভ করুন</button>
+            <button class="btn-main" onclick="closeReceipt()" style="background:#666">বন্ধ করুন</button>
+        </div>
+    </div>
+</div>
+
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyUl1Po10R5G9cd4N6xZNTeT0x1y_c3FWaDXfhOXzcnaglO7oc8d8ybjnXmv7pZTDiw/exec";
     let db = [];
+    let activeReceiptData = null;
 
     window.onload = loadData;
 
@@ -185,8 +217,13 @@
         try {
             const res = await fetch(SCRIPT_URL + "?action=load");
             db = await res.json();
+            updateTotalStats();
             renderAdminList();
-        } catch (e) { db = JSON.parse(localStorage.getItem('org_db')) || []; renderAdminList(); }
+        } catch (e) { 
+            db = JSON.parse(localStorage.getItem('org_db')) || []; 
+            updateTotalStats();
+            renderAdminList(); 
+        }
         toggleLoader(false);
     }
 
@@ -196,10 +233,98 @@
         setTimeout(loadData, 1500);
     }
 
+    // New: Calculate Grand Total for the Whole Organization
+    function updateTotalStats() {
+        let grandTotal = 0;
+        db.forEach(member => {
+            if(member.payments) {
+                member.payments.forEach(p => {
+                    grandTotal += parseFloat(p.amount) || 0;
+                });
+            }
+        });
+        document.getElementById('totalGrandCollection').innerText = "৳ " + grandTotal.toLocaleString('bn-BD');
+    }
+
+    function fetchMemberInfo(id) {
+        const m = db.find(x => x.no === id);
+        const nameHint = document.getElementById('payNameHint');
+        const payAmtInput = document.getElementById('payAmt');
+        if (m) {
+            nameHint.innerText = m.name;
+            let idNum = parseInt(id);
+            if (idNum >= 1 && idNum <= 23) payAmtInput.value = 4000;
+            else if (idNum >= 24 && idNum <= 44) payAmtInput.value = 2000;
+            else payAmtInput.value = "";
+        } else {
+            nameHint.innerText = "";
+            payAmtInput.value = "";
+        }
+    }
+
+    async function addPayment() { 
+        const id = document.getElementById('payId').value; 
+        const amt = document.getElementById('payAmt').value; 
+        const mon = document.getElementById('payMonth').value + " " + document.getElementById('payYear').value;
+        const idx = db.findIndex(x => x.no === id); 
+        
+        if(idx === -1 || !amt) return alert("সঠিক আইডি ও টাকার পরিমাণ দিন"); 
+        
+        activeReceiptData = {
+            id: id,
+            name: db[idx].name,
+            amount: amt,
+            month: mon,
+            mobile: db[idx].mobile,
+            date: new Date().toLocaleDateString('bn-BD')
+        };
+
+        if(!db[idx].payments) db[idx].payments = []; 
+        db[idx].payments.push({ month: mon, amount: amt }); 
+        
+        await sync(); 
+        showReceipt();
+        
+        document.getElementById('payId').value = "";
+        document.getElementById('payAmt').value = "";
+        document.getElementById('payNameHint').innerText = "";
+    }
+
+    function showReceipt() {
+        const content = document.getElementById('rcp-content');
+        content.innerHTML = `
+            <b>তারিখ:</b> ${activeReceiptData.date}<br>
+            <b>সদস্য নাম:</b> ${activeReceiptData.name}<br>
+            <b>সদস্য আইডি:</b> #${activeReceiptData.id}<br>
+            <b>পেমেন্টের মাস:</b> ${activeReceiptData.month}<br>
+            <b style="font-size:18px; color:#4361ee">পরিমাণ: ৳ ${activeReceiptData.amount}</b>
+        `;
+        document.getElementById('receiptModal').style.display = 'flex';
+    }
+
+    function downloadPDF() {
+        const element = document.getElementById('pdf-template');
+        const opt = {
+            margin: 10,
+            filename: `Receipt_${activeReceiptData.id}_${activeReceiptData.month}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'a6', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save().then(() => {
+            if(confirm("PDF ডাউনলোড হয়েছে। সদস্যকে কি হোয়াটসঅ্যাপে জানাতে চান?")) {
+                const text = `আপনার ${activeReceiptData.month} মাসের পেমেন্ট ৳${activeReceiptData.amount} সফলভাবে জমা হয়েছে। ধন্যবাদ।`;
+                window.open(`https://wa.me/88${activeReceiptData.mobile}?text=${encodeURIComponent(text)}`, '_blank');
+            }
+        });
+    }
+
+    function closeReceipt() { document.getElementById('receiptModal').style.display = 'none'; }
+
     function searchMember() {
         const key = document.getElementById('searchInput').value.trim();
         const m = db.find(x => x.no === key || x.mobile === key);
-        if (!m) return alert("সদস্য পাওয়া যায়নি!");
+        if (!m) return alert("সদস্য পাওয়া যায়নি!");
         const resDiv = document.getElementById('searchResult');
         resDiv.classList.remove('hidden');
 
@@ -211,19 +336,17 @@
 
         resDiv.innerHTML = `
             <div class="section-card" style="text-align:center">
-                <img src="${fixDriveUrl(m.photoUrl)}" class="m-photo" referrerpolicy="no-referrer">
                 <h2 style="margin:5px 0 0; font-size:20px">${m.name}</h2>
-                <div class="status-badge ${isPaid ? 'paid' : 'due'}">${isPaid ? 'এই মাসের চাঁদা পরিশোধিত' : 'এই মাসের চাঁদা বকেয়া'}</div>
+                <div class="status-badge ${isPaid ? 'paid' : 'due'}">${isPaid ? 'এই মাসের চাঁদা পরিশোধিত' : 'এই মাসের চাঁদা বকেয়া'}</div>
                 <div class="info-grid">
                     <div class="info-item"><span>আইডি</span><b>#${m.no}</b></div>
                     <div class="info-item"><span>মোবাইল</span><b>${m.mobile}</b></div>
                     <div class="info-item" style="grid-column: span 2"><span>ঠিকানা</span><b>${m.address || 'তথ্য নেই'}</b></div>
                     <div class="info-item" style="grid-column: span 2"><span>মোট জমা</span><b>৳ ${total}</b></div>
                 </div>
-                <div class="action-grid">
-                    <a href="tel:${m.mobile}" class="action-btn" style="background:#4834d4">কল</a>
-                    <a href="https://wa.me/88${m.mobile}" target="_blank" class="action-btn" style="background:#25d366">WhatsApp</a>
-                    <a href="sms:${m.mobile}" class="action-btn" style="background:#686de0">SMS</a>
+                <div class="action-grid" style="display:flex; gap:10px; justify-content:center">
+                    <a href="tel:${m.mobile}" style="background:#4834d4; padding:10px 20px; color:white; border-radius:10px; text-decoration:none">কল</a>
+                    <a href="https://wa.me/88${m.mobile}" target="_blank" style="background:#25d366; padding:10px 20px; color:white; border-radius:10px; text-decoration:none">WhatsApp</a>
                 </div>
             </div>
             <div class="section-card">
@@ -241,33 +364,17 @@
         const target = document.getElementById('reportMonth').value + " " + document.getElementById('reportYear').value;
         let due = db.filter(m => !m.payments || !m.payments.some(p => p.month === target));
         document.getElementById('dueReportResult').innerHTML = `<div style="margin-top:15px; border-top:1px solid #eee; padding-top:15px">
-            <p style="font-weight:bold">বকেয়া সদস্য: ${due.length} জন</p>
-            <table style="width:100%; font-size:13px">${due.map(m => `<tr><td style="padding:5px 0">${m.name} (${m.no})</td><td style="text-align:right"><a href="https://wa.me/88${m.mobile}?text=${encodeURIComponent('আপনার '+target+' মাসের পেমেন্ট বকেয়া আছে।')}" target="_blank" style="color:#25d366">রিমাইন্ডার</a></td></tr>`).join('')}</table>
+            <p style="font-weight:bold">বকেয়া সদস্য: ${due.length} জন</p>
+            <table style="width:100%; font-size:13px">${due.map(m => `<tr><td style="padding:5px 0">${m.name} (${m.no})</td><td style="text-align:right"><a href="https://wa.me/88${m.mobile}?text=${encodeURIComponent('আপনার '+target+' মাসের পেমেন্ট বকেয়া আছে।')}" target="_blank" style="color:#25d366">রিমাইন্ডার</a></td></tr>`).join('')}</table>
         </div>`;
     }
 
-    function fixDriveUrl(url) { return url && url.includes("drive.google.com") ? `https://drive.google.com/uc?export=view&id=${url.includes("id=") ? url.split("id=")[1].split("&")[0] : url.split("/d/")[1].split("/")[0]}` : (url || "https://via.placeholder.com/150"); }
     function renderAdminList() { document.getElementById('adminMemberList').innerHTML = db.map((m, i) => `<tr><td><b>#${m.no}</b></td><td>${m.name}</td><td style="text-align:right"><button class="edit-btn" onclick="editMember(${i})">Edit</button></td></tr>`).join(''); localStorage.setItem('org_db', JSON.stringify(db)); }
-    function editMember(i) { const m = db[i]; document.getElementById('editIdx').value = i; document.getElementById('regId').value = m.no; document.getElementById('regName').value = m.name; document.getElementById('regMobile').value = m.mobile; document.getElementById('regAddress').value = m.address || ""; document.getElementById('regPhoto').value = m.photoUrl || ""; document.getElementById('regTitle').innerText = "তথ্য এডিট"; document.getElementById('saveBtn').innerText = "আপডেট"; document.getElementById('cancelBtn').classList.remove('hidden'); }
-    function resetForm() { document.getElementById('editIdx').value = "-1"; document.getElementById('regId').value = ""; document.getElementById('regName').value = ""; document.getElementById('regMobile').value = ""; document.getElementById('regAddress').value = ""; document.getElementById('regPhoto').value = ""; document.getElementById('regTitle').innerText = "সদস্য তথ্য আপডেট/নিবন্ধন"; document.getElementById('saveBtn').innerText = "তথ্য সেভ করুন"; document.getElementById('cancelBtn').classList.add('hidden'); }
-    async function handleSave() { const i = parseInt(document.getElementById('editIdx').value); const data = { no: document.getElementById('regId').value, name: document.getElementById('regName').value, mobile: document.getElementById('regMobile').value, address: document.getElementById('regAddress').value, photoUrl: document.getElementById('regPhoto').value }; if(!data.no || !data.name) return alert("আইডি ও নাম দিন"); if(i === -1 && db.some(x => x.no === data.no)) return alert("আইডি ডুপ্লিকেট!"); if(i === -1) { data.payments = []; db.push(data); } else { db[i] = {...db[i], ...data}; } await sync(); resetForm(); alert("সফলভাবে সংরক্ষিত!"); }
-    
-    async function addPayment() { 
-        const id = document.getElementById('payId').value; 
-        const amt = document.getElementById('payAmt').value; 
-        const mon = document.getElementById('payMonth').value + " " + document.getElementById('payYear').value;
-        const idx = db.findIndex(x => x.no === id); 
-        if(idx === -1 || !amt) return alert("সঠিক সদস্য আইডি ও টাকার পরিমাণ দিন"); 
-        if(!db[idx].payments) db[idx].payments = []; 
-        db[idx].payments.push({ month: mon, amount: amt }); 
-        await sync(); 
-        alert("পেমেন্ট সফলভাবে যোগ করা হয়েছে!"); 
-        document.getElementById('payId').value = ""; document.getElementById('payAmt').value = "";
-    }
-
+    function editMember(i) { const m = db[i]; document.getElementById('editIdx').value = i; document.getElementById('regId').value = m.no; document.getElementById('regName').value = m.name; document.getElementById('regMobile').value = m.mobile; document.getElementById('regAddress').value = m.address || ""; document.getElementById('regTitle').innerText = "তথ্য এডিট"; document.getElementById('saveBtn').innerText = "আপডেট"; document.getElementById('cancelBtn').classList.remove('hidden'); }
+    function resetForm() { document.getElementById('editIdx').value = "-1"; document.getElementById('regId').value = ""; document.getElementById('regName').value = ""; document.getElementById('regMobile').value = ""; document.getElementById('regAddress').value = ""; document.getElementById('regTitle').innerText = "সদস্য তথ্য আপডেট/নিবন্ধন"; document.getElementById('saveBtn').innerText = "তথ্য সেভ করুন"; document.getElementById('cancelBtn').classList.add('hidden'); }
+    async function handleSave() { const i = parseInt(document.getElementById('editIdx').value); const data = { no: document.getElementById('regId').value, name: document.getElementById('regName').value, mobile: document.getElementById('regMobile').value, address: document.getElementById('regAddress').value }; if(!data.no || !data.name) return alert("আইডি ও নাম দিন"); if(i === -1 && db.some(x => x.no === data.no)) return alert("আইডি ডুপ্লিকেট!"); if(i === -1) { data.payments = []; db.push(data); } else { db[i] = {...db[i], ...data}; } await sync(); resetForm(); alert("সফলভাবে সংরক্ষিত!"); }
     function switchAdminSub(type) { document.querySelectorAll('.admin-sub-content').forEach(s => s.classList.add('hidden')); document.getElementById('sub-' + type).classList.remove('hidden'); document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active')); document.getElementById('btn-' + type).classList.add('active'); }
-    function verifyAdmin() { if(document.getElementById('adminPass').value === "01686") { document.getElementById('admin-login').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); } else alert("ভুল পাসওয়ার্ড!"); }
-    function fetchNameHint(id) { const m = db.find(x => x.no === id); document.getElementById('payNameHint').innerText = m ? m.name : ""; }
+    function verifyAdmin() { if(document.getElementById('adminPass').value === "01686") { document.getElementById('admin-login').classList.add('hidden'); document.getElementById('admin-panel').classList.remove('hidden'); updateTotalStats(); } else alert("ভুল পাসওয়ার্ড!"); }
     function switchTab(t) { document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden')); document.getElementById('section-'+t).classList.remove('hidden'); document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active')); document.getElementById('tab-'+t).classList.add('active'); }
     function toggleLoader(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
 </script>
